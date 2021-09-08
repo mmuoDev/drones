@@ -1,6 +1,7 @@
 package app
 
 import (
+	"drones/internal/jwt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -25,17 +26,20 @@ type Options func(o *OptionalArgs)
 
 // /OptionalArgs optional arguments for this application
 type OptionalArgs struct {
+	GetClaims jwt.GetClaimsFunc
 }
 
 //New creates a new instance of the App
 func New(options ...Options) App {
-	o := OptionalArgs{}
+	o := OptionalArgs{
+		GetClaims: jwt.GetClaims(),
+	}
 
 	for _, option := range options {
 		option(&o)
 	}
 
-	retrieveLocation := RetrieveLocationHandler()
+	retrieveLocation := RetrieveLocationHandler(o.GetClaims)
 
 	return App{
 		RetrieveLocationHandler: retrieveLocation,
