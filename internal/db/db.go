@@ -2,11 +2,15 @@ package db
 
 import (
 	"drones/internal"
-	"drones/internal/utils"
-	"path/filepath"
+	"embed"
+	"encoding/json"
+	"io/fs"
 
 	"github.com/pkg/errors"
 )
+
+//go:embed mockdata/*
+var content embed.FS
 
 //RetrieveDroneByIDFunc returns functionality to retrieve drone by id
 type RetrieveDroneByIDFunc func(id string) (internal.Drone, error)
@@ -15,9 +19,21 @@ type RetrieveDroneByIDFunc func(id string) (internal.Drone, error)
 func RetrieveDroneByID() RetrieveDroneByIDFunc {
 	return func(id string) (internal.Drone, error) {
 		var drone internal.Drone
-		_, err := utils.FileToStruct(filepath.Join("testdata", "retrieve_drone_details.json"), &drone)
+		files, err := fs.ReadDir(content, "mockdata")
 		if err != nil {
-			return drone, errors.Wrapf(err, "db - unable to convert file to struct")
+			return drone, errors.Wrap(err, "db - unable to read files to mockdata dir")
+		}
+		for _, file := range files {
+			if file.Name() == "retrieve_drone_details.json" {
+				bb, err := content.ReadFile("mockdata/" + file.Name())
+				if err != nil {
+					return drone, errors.Wrap(err, "db - unable to read file from mockdata dir")
+				}
+				if err := json.Unmarshal(bb, &drone); err != nil {
+					return drone, errors.Wrap(err, "db - Unable to unmarshal struct")
+				}
+				return drone, nil
+			}
 		}
 		return drone, nil
 	}
