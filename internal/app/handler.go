@@ -2,12 +2,13 @@ package app
 
 import (
 	"drones/internal/jwt"
+	"drones/internal/utils"
 	"drones/internal/workflow"
 	"drones/pkg"
 	"net/http"
 	"strings"
 
-	"github.com/mmuoDev/commons/httputils"
+	//"github.com/mmuoDev/commons/httputils"
 	"github.com/pkg/errors"
 )
 
@@ -16,34 +17,34 @@ func RetrieveLocationHandler(getClaims jwt.GetClaimsFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var params pkg.DNSQueryParams
-		if err := httputils.GetQueryParams(&params, r); err != nil {
-			httputils.ServeError(errors.Wrapf(err, "handler - unable to decode query params"), w)
+		if err := utils.GetQueryParams(&params, r); err != nil {
+			utils.ServeError(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		//Retrieve sectorID from jwt
 		token, err := getToken(r)
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
+			utils.ServeError(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 		claims, err := getClaims(token)
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
+			utils.ServeError(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 		sectorID, ok := claims["sectorID"]
 		if !ok {
-			w.WriteHeader(http.StatusUnauthorized)
+			utils.ServeError(w, "sectorID not in jwt claims", http.StatusUnauthorized)
 			return
 		}
 		retrieveLocation := workflow.RetrieveLocation()
 		res, err := retrieveLocation(params, sectorID.(string))
 		if err != nil {
-			httputils.ServeError(err, w)
+			utils.ServeError(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		httputils.ServeJSON(res, w)
+		utils.ServeJSON(res, w, http.StatusOK)
 	}
 }
 

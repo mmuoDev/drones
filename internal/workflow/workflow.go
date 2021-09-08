@@ -3,13 +3,14 @@ package workflow
 import (
 	"drones/pkg"
 	"strconv"
+
 	"github.com/pkg/errors"
 )
 
 //RetrieveLocationFunc returns functionality to retrieve location
 type RetrieveLocationFunc func(params pkg.DNSQueryParams, sectorID string) (pkg.DNSResponse, error)
 
-//RetrieveLocation retrieves location 
+//RetrieveLocation retrieves location
 func RetrieveLocation() RetrieveLocationFunc {
 	return func(params pkg.DNSQueryParams, sectorID string) (pkg.DNSResponse, error) {
 		sID, err := stringToFloat(sectorID, 64)

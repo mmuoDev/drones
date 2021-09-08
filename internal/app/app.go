@@ -15,7 +15,6 @@ type App struct {
 func (a App) Handler() http.HandlerFunc {
 	router := httprouter.New()
 
-	//books
 	router.HandlerFunc(http.MethodGet, "/locations", a.RetrieveLocationHandler)
 
 	return http.HandlerFunc(router.ServeHTTP)
