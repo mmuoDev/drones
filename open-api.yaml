@@ -1,0 +1,75 @@
+openapi: 3.0.0
+info:
+  title: DSN API
+  version: 1.0.0
+  description: Drone Navigation Service
+
+paths:
+  /locations:
+    get:
+      summary: Retrieves location for a databank
+      description: Retrieves location for a databank
+      responses:
+        "200":
+          $ref: "#/components/responses/RetrieveLocationResponse"
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "Internal Server Error"
+      parameters:
+        - $ref: "#/components/parameters/XCoord"
+        - $ref: "#/components/parameters/YCoord"
+        - $ref: "#/components/parameters/ZCoord"
+        - $ref: "#/components/parameters/velocity"
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:   
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    XCoord:
+      name: x
+      in: path
+      description: The x coordinate
+      required: true
+      schema:
+        type: string
+    YCoord:
+      name: y
+      in: path
+      description: The y coordinate
+      required: true
+      schema:
+        type: string
+    ZCoord:
+      name: z
+      in: path
+      description: The z coordinate
+      required: true
+      schema:
+        type: string
+    velocity:
+      name: velocity
+      in: path
+      description: The velocity
+      required: true
+      schema:
+        type: string
+  schemas:
+    RetrieveLocationResponse:
+      description: Retrieve location for a databank response
+      type: object
+      properties:
+        loc:
+          type: number
+          example: 1.23
+  responses:
+    RetrieveLocationResponse:
+      description: A JSON response body representing response from retrieving location
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RetrieveLocationResponse"

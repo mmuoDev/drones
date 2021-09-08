@@ -1,6 +1,7 @@
 package app
 
 import (
+	"drones/internal/db"
 	"drones/internal/jwt"
 	"drones/internal/utils"
 	"drones/internal/workflow"
@@ -13,7 +14,7 @@ import (
 )
 
 //RetrieveLocationHandler returns a http request to retrieve location
-func RetrieveLocationHandler(getClaims jwt.GetClaimsFunc) http.HandlerFunc {
+func RetrieveLocationHandler(getClaims jwt.GetClaimsFunc, retrieveDrone db.RetrieveDroneByIDFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var params pkg.DNSQueryParams
@@ -33,13 +34,13 @@ func RetrieveLocationHandler(getClaims jwt.GetClaimsFunc) http.HandlerFunc {
 			utils.ServeError(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		sectorID, ok := claims["sectorID"]
+		droneID, ok := claims["droneID"]
 		if !ok {
-			utils.ServeError(w, "sectorID not in jwt claims", http.StatusUnauthorized)
+			utils.ServeError(w, "droneID not in jwt claims", http.StatusUnauthorized)
 			return
 		}
-		retrieveLocation := workflow.RetrieveLocation()
-		res, err := retrieveLocation(params, sectorID.(string))
+		retrieveLocation := workflow.RetrieveLocation(retrieveDrone)
+		res, err := retrieveLocation(params, droneID.(string))
 		if err != nil {
 			utils.ServeError(w, err.Error(), http.StatusInternalServerError)
 			return
