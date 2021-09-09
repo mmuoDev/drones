@@ -6,7 +6,7 @@ This is a drone navigation service whose primary goal is to help a drone retriev
 - There are sectors of galaxies (referred to `sectors` here) that when passed coordinates (`x,y and z`) and velocity, can return locations of databanks on these sectors.
 - A `JWT` is used to authenticate requests to the endpoint.
 - A `droneID` is part of the `JWT` claims. 
-- The `droneID` can then be used to retrieve the drone details (from a database) which contain most importantly, the `sectorID` needed to calculate the location. This process is mocked in this service. 
+- The `droneID` can then be used to retrieve the drone details (from a database) which contain most importantly, the `sectorID` needed to calculate the location. This retrieval is mocked in this service. 
 
 ## Likely Use Cases
 
@@ -24,14 +24,29 @@ This is a drone navigation service whose primary goal is to help a drone retriev
     "loc": 113.23999999999998
 }
 ```
-### Starting server
+### Build
 ``` bash
-$ make run
+$  go build -o main ./cmd/drones  
 ``` 
 ### Running Tests
 ``` bash
 $ make test
 ``` 
+
+### Run
+``` bash 
+$ make run 
+```
+
+### Docker
+``` bash 
+$ docker build -t drones-api .    
+```
+
+``` bash 
+$ docker run -p 8000:9064 drones-api
+```
+
 ## OpenAPI Spec
 The OpenAPI spec for this service can be found in the `open-api.yaml` file. Upload to https://editor.swagger.io/ to view. 
 
